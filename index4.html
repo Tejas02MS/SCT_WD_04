@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simple TO-DO List</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #f5f5f5;
+    padding: 20px;
+  }
+  h1 {
+    text-align: center;
+  }
+  #taskForm {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+  #taskInput, #taskDate, #taskTime {
+    padding: 10px;
+    margin-right: 5px;
+  }
+  #taskList {
+    max-width: 600px;
+    margin: auto;
+    list-style: none;
+    padding: 0;
+  }
+  .taskItem {
+    background-color: #fff;
+    margin-bottom: 10px;
+    padding: 15px;
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .completed {
+    text-decoration: line-through;
+    color: gray;
+  }
+  button {
+    margin-left: 5px;
+  }
+</style>
+</head>
+<body>
+
+<h1>TO-DO List</h1>
+
+<div id="taskForm">
+  <input type="text" id="taskInput" placeholder="Enter task..." />
+  <input type="date" id="taskDate" />
+  <input type="time" id="taskTime" />
+  <button onclick="addTask()">Add Task</button>
+</div>
+
+<ul id="taskList"></ul>
+
+<script>
+let tasks = [];
+
+function addTask() {
+  const taskInput = document.getElementById('taskInput').value;
+  const taskDate = document.getElementById('taskDate').value;
+  const taskTime = document.getElementById('taskTime').value;
+
+  if (!taskInput) {
+    alert('Please enter a task!');
+    return;
+  }
+
+  const task = {
+    id: Date.now(),
+    text: taskInput,
+    date: taskDate,
+    time: taskTime,
+    completed: false
+  };
+
+  tasks.push(task);
+  document.getElementById('taskInput').value = '';
+  document.getElementById('taskDate').value = '';
+  document.getElementById('taskTime').value = '';
+  renderTasks();
+}
+
+function renderTasks() {
+  const taskList = document.getElementById('taskList');
+  taskList.innerHTML = '';
+
+  tasks.sort((a, b) => {
+    // sort by date and time
+    return new Date(a.date + ' ' + a.time) - new Date(b.date + ' ' + b.time);
+  });
+
+  tasks.forEach(task => {
+    const li = document.createElement('li');
+    li.className = 'taskItem' + (task.completed ? ' completed' : '');
+    li.innerHTML = `
+      <span>${task.text} ${task.date ? '- ' + task.date : ''} ${task.time ? '- ' + task.time : ''}</span>
+      <div>
+        <button onclick="toggleComplete(${task.id})">${task.completed ? 'Undo' : 'Complete'}</button>
+        <button onclick="editTask(${task.id})">Edit</button>
+        <button onclick="deleteTask(${task.id})">Delete</button>
+      </div>
+    `;
+    taskList.appendChild(li);
+  });
+}
+
+function toggleComplete(id) {
+  const task = tasks.find(t => t.id === id);
+  task.completed = !task.completed;
+  renderTasks();
+}
+
+function editTask(id) {
+  const task = tasks.find(t => t.id === id);
+  const newText = prompt('Edit task:', task.text);
+  if (newText !== null) {
+    task.text = newText;
+    renderTasks();
+  }
+}
+
+function deleteTask(id) {
+  tasks = tasks.filter(t => t.id !== id);
+  renderTasks();
+}
+</script>
+
+</body>
+</html>
